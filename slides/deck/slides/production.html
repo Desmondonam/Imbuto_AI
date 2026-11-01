@@ -1,0 +1,13 @@
+<section id="production" data-transition="fade" style="background:#f7f4ec;color:#1b2a20;font-family:'Nunito Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#14301f">A demo handles success. A service handles the rest.</h2>
+<table style="font-size:32px;color:#1b2a20">
+<tr style="background:#e9e6d9"><th style="width:40%">What happens</th><th style="width:60%">What the service does</th></tr>
+<tr><td>Not an image</td><td>Returns 422, not a crash</td></tr>
+<tr><td>A huge upload</td><td>Returns 413</td></tr>
+<tr><td>A photo of something else</td><td>Says “not a bean leaf”</td></tr>
+<tr><td>The model is unsure</td><td>Says so, and asks for a better photo</td></tr>
+<tr><td>A pesticide question</td><td>Hands it to a human adviser</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5a6659">Step 2 of 5 · all covered by tests</p>
+<aside>The leaf check rejected everyday test images, but they were small ones. Leaves from other crops may pass it, and I have not tested that yet. The crop model answers on 88 percent of test photos and is right on 95.6 percent of those. A wrong answer about someone's crop costs more than a request for a better photo. The advisory quotes approved text only, never generated text. Say that it is draft content today.</aside>
+</section>

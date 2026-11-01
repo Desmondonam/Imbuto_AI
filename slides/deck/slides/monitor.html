@@ -1,0 +1,12 @@
+<section id="monitor" data-transition="fade" style="background:#f7f4ec;color:#1b2a20;font-family:'Nunito Sans', Verdana, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#14301f">Models fail quietly: 200 OK, worse answers</h2>
+<table style="font-size:32px;color:#1b2a20">
+<tr style="background:#e9e6d9"><th style="width:20%">Layer</th><th style="width:40%">Question</th><th style="width:40%">Signal</th></tr>
+<tr><td>Service</td><td>Is it up and fast?</td><td>Health checks, latency</td></tr>
+<tr><td>Data</td><td>Do inputs still look familiar?</td><td>Share of recent photos flagged</td></tr>
+<tr><td>Model</td><td>Is it still right?</td><td>Farmer feedback, unsure rate</td></tr>
+<tr><td>Product</td><td>Is it helping?</td><td>Questions sent to humans</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5a6659">Step 5 of 5 · /ops page and Prometheus metrics</p>
+<aside>Open /ops now, with the simulated traffic. Normal software monitoring only covers the first row. In the field there are no labels, so the data and model rows are often all you have. The product row is the sneaky useful one: questions we could not answer are a to-do list for agronomists.</aside>
+</section>

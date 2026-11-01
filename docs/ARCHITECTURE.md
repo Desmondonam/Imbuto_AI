@@ -106,6 +106,9 @@ These are enforced by tests in `tests/test_performance_budget.py`.
 | SMS reply | One 160-character GSM-7 segment | Each extra segment costs money |
 | USSD screen | under 182 characters | Common GSM limit |
 
+A real Chrome run at 40 kbps down, 20 kbps up and 800 ms latency measured 0.9 s for the home page
+and 7.5 s for a photo check. Offline queueing and JavaScript-off forms were tested the same way.
+
 ## Safety: where a wrong answer could hurt
 
 Advice can cost a harvest, so the system is allowed to say *I don't know*.
@@ -124,6 +127,13 @@ Consent-based, minimal collection, aligned with the 2026 data protection law (no
 lawyer). Records are keyed by an HMAC of the phone number. The number itself is kept only for
 people who agreed to alerts, and sending STOP deletes it. Photos are never stored. Dashboards show
 aggregates, never individuals.
+
+## Monitoring
+
+`/ops` and `/metrics` cover service health, recent photos, farmer feedback and unanswered questions.
+The drift alert fires when 12 of the last 30 photos are rejected or unsure. A rolling count replaced
+PSI over 24 hours, because that average hid a simulated shift, and PSI above 0.25 gave 57% false
+alarms on 30-photo windows. Thresholds should be retuned on field data.
 
 ## Differences from the concept note
 
