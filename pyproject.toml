@@ -1,0 +1,55 @@
+[project]
+name = "imbuto-ai"
+version = "0.1.0"
+description = "Kirundi-first farm intelligence for Burundi's smallholder farmers"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.32",
+  "jinja2>=3.1",
+  "python-multipart>=0.0.12",
+  "numpy>=2.0,<2.3",
+  "onnxruntime>=1.20,<1.24",  # newer releases dropped Intel Mac wheels
+  "pillow>=10.4",
+  "prometheus-client>=0.21",
+]
+
+[dependency-groups]
+ml = [
+  "duckdb>=1.1",
+  "pandas>=2.2",
+  "pyarrow>=17",
+  "scipy>=1.14",
+  "scikit-learn>=1.5",
+  "matplotlib>=3.9",
+  "onnx>=1.16",
+  "shapely>=2.0",
+  "joblib>=1.4",
+  "requests>=2.32",
+  "jupyter>=1.1",
+  "nbconvert>=7.16",
+  "ipykernel>=6.29",
+]
+dev = ["pytest>=8.3", "httpx>=0.27", "ruff>=0.7"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/imbuto"]
+
+[tool.uv]
+default-groups = ["dev", "ml"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
