@@ -15,7 +15,7 @@ Two consequences run through the design:
 
 1. **Channels are thin.** USSD, SMS, IVR and web all call one channel-agnostic core. A new
    channel is an adapter, not a rewrite.
-2. **Heavy work happens before the request arrives.** Rain outlooks are computed in a batch and
+2. **Heavy work happens before the request arrives.** Rain summaries are computed in a batch and
    served from a snapshot, so a USSD session answers in milliseconds, inside the operator timeout.
 
 ## System view
@@ -34,7 +34,7 @@ flowchart TB
   end
   subgraph train[3 · Training: offline, notebooks and make]
     I[Crop health: MobileNetV4 + head, ONNX]
-    J[Rain risk: gradient boosting]
+    J[Rain monitor + gated forecast]
     K[Advisory index: vetted knowledge base]
   end
   subgraph bundle[4 · Versioned artifacts]
@@ -73,7 +73,7 @@ flowchart TB
 | --- | --- | --- |
 | Lakehouse | Downloads open data and builds bronze, silver and gold Parquet | `src/imbuto/lakehouse/` |
 | Crop health | Photo to bean disease, with an "unsure" outcome | `src/imbuto/ml/crop_health.py` |
-| Rain risk | Probability that the rest of a season falls short | `src/imbuto/ml/risk.py` |
+| Rain monitor | Measured season rain against each commune's history; forecast behind a gate | `src/imbuto/ml/risk.py` |
 | Advisory | Retrieves approved passages, cites them, escalates when unsure | `src/imbuto/ml/advisory.py` |
 | Bundles | Model, card, checksums; refuses to load if tampered with | `src/imbuto/ml/bundle.py` |
 | Core | Channel-agnostic answers: outlook, prices, advice, diagnosis | `src/imbuto/core/` |
@@ -113,7 +113,8 @@ Advice can cost a harvest, so the system is allowed to say *I don't know*.
 - The advisory assistant answers **only** from `approved` documents, quotes them and cites them.
   Below the confidence threshold it hands over to a human instead of guessing.
 - Crop diagnosis returns "unsure" below its threshold, and never names a pesticide.
-- Rain outlooks are stated as a likelihood, with their source and date.
+- Farmers see measured rainfall with its source and date, not a forecast. The experimental
+  forecast failed its promotion gate, so only the analyst dashboard shows it.
 - **Everything written in Kirundi, and every knowledge-base document, is an unreviewed draft.**
   See [REVIEW_NEEDED.md](REVIEW_NEEDED.md). Drafts run only in demo mode, and the UI says so.
 
@@ -131,12 +132,12 @@ farmer opts in. Dashboards show aggregates, never individuals.
 | React | Server-rendered HTML + PWA | A framework alone would break the 2G budget | [ADR 2](adr/0002-html-first-web.md) |
 | Native Android + TFLite | Installable PWA, server inference | Reaches Android and iPhone today; on-device model is next | [ADR 3](adr/0003-pwa-before-android.md) |
 | Named gateway | Gateway-neutral adapters | Africa's Talking's FAQ does not list Burundi | [ADR 4](adr/0004-gateway-neutral-channels.md) |
-| Validate against IPC | Validate against observed rainfall | Commune-level IPC history is not openly available | [ADR 5](adr/0005-rainfall-shortfall-target.md) |
+| Forecast season risk | Measured rainfall; forecast gated | Backtests found no reliable skill | [ADR 5](adr/0005-rainfall-shortfall-target.md) |
 | Separate model services | One service, batch outlooks | One person can run it; split when load requires | [ADR 6](adr/0006-modular-monolith.md) |
 
 ## Not built yet
 
-Kirundi ASR and TTS, Sentinel-2 NDVI, Lake Tanganyika flood warning, IGEBU data, crops beyond
+A rainfall forecast that passes its gate, Kirundi ASR and TTS, Sentinel-2 NDVI, Lake Tanganyika flood warning, IGEBU data, crops beyond
 beans, LLM-generated answers, on-device inference, native Android, and live operator integration.
 The official 42-commune boundaries are also missing: no open geometry was found, so the map uses
 the 119 pre-reform communes grouped into the five current provinces (approximate for the split

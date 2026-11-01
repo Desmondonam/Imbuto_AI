@@ -1,0 +1,54 @@
+{
+  "name": "rain",
+  "version": "1.0.0",
+  "created_at": "2026-11-01T22:54:12+00:00",
+  "files": {
+    "rain_status.json": "f2a869cc74922cccf6a021f3cec3e061c70ba661877553d07860db0ed34e72dc"
+  },
+  "card": {
+    "task": "Rain status for farmers; shortfall forecast for analysts only",
+    "target": "Rest-of-season rain in the driest fifth of that commune's history",
+    "backtest": {
+      "period": "2006-2026, walk-forward",
+      "scores": {
+        "logistic": {
+          "brier_skill": 0.002,
+          "brier_skill_ci90": [
+            -0.077,
+            0.084
+          ],
+          "auc": 0.593,
+          "brier": 0.1304
+        },
+        "gradient_boosting": {
+          "brier_skill": -0.059,
+          "brier_skill_ci90": [
+            -0.206,
+            0.072
+          ],
+          "auc": 0.58,
+          "brier": 0.1385
+        }
+      },
+      "by_season": {
+        "A": {
+          "auc": 0.609,
+          "brier_skill": 0.033,
+          "shortfall_rate": 0.1
+        },
+        "B": {
+          "auc": 0.581,
+          "brier_skill": -0.016,
+          "shortfall_rate": 0.2
+        }
+      }
+    },
+    "promotion_gate": {
+      "best_model": "logistic",
+      "rule": "lower bound of 90% interval on Brier skill must exceed 0",
+      "lower_bound": -0.077,
+      "passed": false
+    },
+    "farmer_facing_forecast": false
+  }
+}

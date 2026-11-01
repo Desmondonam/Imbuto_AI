@@ -1,11 +1,18 @@
-# 5. Predict rainfall shortfall, not IPC phase
+# 5. Show farmers measured rainfall; keep the forecast behind a gate
 
-**Decision.** Mid-season, predict whether the rest of the season will fall in the driest fifth of
-that commune's history. Validate by holding out whole recent years.
+**Decision.** Farmer channels report observed season rainfall against each commune's own history.
+The shortfall forecast stays experimental, on the analyst dashboard only, until it passes an
+automatic promotion gate: the lower end of the 90% interval on Brier skill must exceed zero.
 
-**Why.** The note proposes validating against IPC outcomes, but commune-level IPC history is not
-openly available, and a handful of national events cannot train a model. Rainfall gives a real,
-measured label for every commune and season since 1981.
+**Why.** The note proposes forecasting shortfalls and validating against IPC outcomes. Commune-level
+IPC history is not openly available, so we tested rainfall shortfall instead: after the first
+month of a season, will the rest fall in the driest fifth of that commune's history?
 
-**Consequence.** The output is a *rainfall* risk, not a food-security forecast, and must be
-described that way. Replace or extend the target when partners share IPC or yield data.
+Walk-forward backtests on 2006-2026, with whole seasons resampled for the interval, found no
+reliable skill. Logistic regression scored 0.002 (90% interval -0.077 to 0.084) and gradient
+boosting -0.059. Trying whole-season totals and excess rain gave no target whose interval cleared
+zero. We then stopped looking, because further variations would only risk a lucky result.
+
+**Consequence.** The note's forecasting goal is not met yet, and we say so. CHIRPS plus ENSO and the
+Indian Ocean Dipole is not enough at this lead time. Better inputs to try next are seasonal
+forecasts from IGEBU or ICPAC, NDVI and soil moisture, and yield or IPC labels from partners.

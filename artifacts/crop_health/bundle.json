@@ -1,0 +1,77 @@
+{
+  "name": "crop_health",
+  "version": "1.0.0",
+  "created_at": "2026-11-01T22:54:00+00:00",
+  "files": {
+    "centroid.json": "482341244577d3b2ee08a5aee1c925fa01ef540f9a0b060e5480b94b58cc49d3",
+    "model.onnx": "6361563043eca777f0eb942969edbadc543173b5952a5efe197e675dd9810b5a"
+  },
+  "card": {
+    "model": "MobileNetV4-Conv-Small (ImageNet, Apache-2.0) with a logistic head",
+    "task": "Bean leaf diagnosis from a phone photo",
+    "labels": [
+      "angular_leaf_spot",
+      "bean_rust",
+      "healthy"
+    ],
+    "confidence_threshold": 0.67,
+    "similarity_threshold": 0.611,
+    "weights": "float (quantised failed its accuracy check)",
+    "training_data": "iBean (AI-Lab-Makerere/beans, MIT): field photos from Uganda",
+    "intended_use": "Decision support for bean leaves, confirmed by an agronomist",
+    "not_for": "Other crops, pesticide selection, or use without human follow-up",
+    "known_limits": [
+      "No Burundian test images yet: accuracy here may not hold in Burundi",
+      "Beans only, and only two diseases",
+      "Leaf check tested on small everyday images, not other crops: other leaves may pass"
+    ],
+    "metrics": {
+      "test_images": 128,
+      "validation_accuracy_float": 0.955,
+      "validation_accuracy_quantised": 0.902,
+      "test_accuracy": 0.922,
+      "test_accuracy_after_2g_shrink": 0.875,
+      "answered_share": 0.883,
+      "accuracy_when_answered": 0.956,
+      "non_leaf_rejected": 1.0,
+      "real_leaf_wrongly_rejected": 0.031,
+      "median_upload_bytes": 12335,
+      "quantised_model_bytes": 2808171,
+      "model_bytes": 9977656,
+      "cpu_latency_ms_laptop": 6.6,
+      "per_class": {
+        "angular_leaf_spot": {
+          "precision": 0.9111111111111111,
+          "recall": 0.9534883720930233,
+          "f1-score": 0.9318181818181818,
+          "support": 43.0
+        },
+        "bean_rust": {
+          "precision": 0.9047619047619048,
+          "recall": 0.8837209302325582,
+          "f1-score": 0.8941176470588236,
+          "support": 43.0
+        },
+        "healthy": {
+          "precision": 0.9512195121951219,
+          "recall": 0.9285714285714286,
+          "f1-score": 0.9397590361445783,
+          "support": 42.0
+        },
+        "accuracy": 0.921875,
+        "macro avg": {
+          "precision": 0.9223641760227125,
+          "recall": 0.9219269102990033,
+          "f1-score": 0.9218982883405279,
+          "support": 128.0
+        },
+        "weighted avg": {
+          "precision": 0.9221387437088656,
+          "recall": 0.921875,
+          "f1-score": 0.9217587512483086,
+          "support": 128.0
+        }
+      }
+    }
+  }
+}
