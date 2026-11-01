@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block main %}
+{% if rain %}<div class="c"><b>{{ tr('rain_title') }}</b><br>{{ rain.message }}</div>{% endif %}
+<p class="s">{{ tr('your_area') }}: {{ commune.name if commune else '-' }} · <a href="/area">{{ tr('change') }}</a></p>
+<div class="m"><a href="/photo">{{ tr('photo_title') }}</a><a href="/ask">{{ tr('ask_title') }}</a><a href="/prices">{{ tr('prices_title') }}</a></div>
+{% endblock %}

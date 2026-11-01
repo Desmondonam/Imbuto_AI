@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block main %}<h1>{{ tr('photo_title') }}</h1>
+{% if done %}<div class="c">{{ tr('thanks') }}</div>{% endif %}
+{% if result %}<div class="c"><b>{{ result.message }}</b>
+<form method="post" action="/photo/feedback"><input type="hidden" name="prediction_id" value="{{ result.id }}"><p class="s">{{ tr('was_right') }}</p><button name="correct" value="1">{{ tr('yes') }}</button><button name="correct" value="0">{{ tr('no') }}</button></form></div>{% endif %}
+<div class="c" id="queued" hidden>{{ tr('photo_queued') }}</div>
+<form id="f" method="post" enctype="multipart/form-data"><p>{{ tr('photo_hint') }}</p><input id="i" type="file" name="image" accept="image/*" capture="environment" required aria-label="{{ tr('photo_title') }}"><button>{{ tr('photo_button') }}</button></form>
+{% endblock %}{% block js %}<script src="/static/photo.js" defer></script>{% endblock %}

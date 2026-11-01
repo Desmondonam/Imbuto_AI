@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block main %}<h1>{{ tr('ask_title') }}</h1>
+{% if answer %}<div class="c">{{ answer.text }}{% if answer.source_id %}<p class="s">{{ tr('source') }}: {{ answer.source_id }}</p>{% endif %}</div>{% endif %}
+<form method="post"><textarea name="question" rows="3" maxlength="300" required aria-label="{{ tr('ask_placeholder') }}" placeholder="{{ tr('ask_placeholder') }}">{{ question }}</textarea><button>{{ tr('ask_button') }}</button></form>{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block title %}Imbuto AI · Feature phone{% endblock %}{% block css %}.p{background:#23272a;border-radius:18px;padding:16px;max-width:280px;margin:0 auto 14px}.d{background:#b7c9a5;font:15px/1.3 ui-monospace,monospace;color:#10180f;min-height:190px;padding:10px;border-radius:6px;white-space:pre-wrap}.q{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.q button{background:#3c4348;margin:0}{% endblock %}{% block main %}
+<h1>USSD *123#</h1><div class="p"><div class="d" id="d" role="status">Press Call</div><div class="q" id="q"></div><button id="c" style="margin-top:8px">Call / Send</button></div>
+<h1>SMS</h1><form id="s" class="c"><input id="t" value="IMVURA" aria-label="SMS text"><button>Send</button><p id="r" role="status"></p></form><p class="s">Simulates a phone on the real menu. No operator or short code is connected.</p>
+{% endblock %}{% block js %}<script>
+var sid='{{ session }}',ph='+25769000000',d=document.getElementById('d'),over=false;
+function post(u,b){return fetch(u,{method:'POST',body:new URLSearchParams(b)}).then(function(r){return r.json()})}
+function go(x){if(over){sid=Math.random().toString(36).slice(2);over=false;x=''}post('/simulator/ussd',{session:sid,phone:ph,digit:x||''}).then(function(r){d.textContent=r.text;over=r.end})}
+var q=document.getElementById('q');'1 2 3 4 5 6 7 8 9'.split(' ').forEach(function(n){var b=document.createElement('button');b.textContent=n;b.onclick=function(){go(n)};q.appendChild(b)});
+document.getElementById('c').onclick=function(){go('')};
+document.getElementById('s').onsubmit=function(e){e.preventDefault();post('/simulator/sms',{phone:ph,text:document.getElementById('t').value}).then(function(r){document.getElementById('r').textContent=r.reply})};
+</script>{% endblock %}

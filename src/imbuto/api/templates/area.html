@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block main %}<h1>{{ tr('your_area') }}</h1>
+<form method="post" action="/area"><select name="commune_id" required aria-label="{{ tr('commune') }}">{% for group, items in communes|groupby('district') %}<optgroup label="{{ group }}">{% for c in items %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</optgroup>{% endfor %}</select><button>{{ tr('save') }}</button></form>{% endblock %}
