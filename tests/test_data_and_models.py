@@ -70,7 +70,8 @@ def test_backtest_thresholds_ignore_the_future():
     rows = []
     for year in range(2000, 2011):
         rows.append({"commune_id": "BI001", "season": "A", "year": year, "rain_so_far": 1.0,
-                     "rain_prior_3m": 1.0, "rain_last_month": 1.0, "target_rain": 100.0})  # fmt: skip
+                     "rain_prior_3m": 1.0, "rain_last_month": 1.0,
+                     "target_rain": 100.0})  # fmt: skip
     history = pd.DataFrame(rows[:-1])
     future = pd.DataFrame(rows[-1:]).assign(target_rain=0.0)
     assert risk.prepare(future, history)["threshold"].iloc[0] == 100.0

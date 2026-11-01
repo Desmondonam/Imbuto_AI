@@ -18,7 +18,9 @@ def _env(name: str, default: str = "") -> str:
 @dataclass(frozen=True)
 class Settings:
     env: str = field(default_factory=lambda: _env("ENV", "development"))
-    db_path: Path = field(default_factory=lambda: Path(_env("DB_PATH", str(DATA / "imbuto.sqlite"))))
+    db_path: Path = field(
+        default_factory=lambda: Path(_env("DB_PATH", str(DATA / "imbuto.sqlite")))
+    )
     phone_hash_key: str = field(default_factory=lambda: _env("PHONE_HASH_KEY", "dev-only-key"))
     gateway_token: str = field(default_factory=lambda: _env("GATEWAY_TOKEN"))
     ops_token: str = field(default_factory=lambda: _env("OPS_TOKEN"))

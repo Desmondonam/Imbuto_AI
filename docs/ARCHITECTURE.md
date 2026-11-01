@@ -121,8 +121,9 @@ Advice can cost a harvest, so the system is allowed to say *I don't know*.
 ## Privacy
 
 Consent-based, minimal collection, aligned with the 2026 data protection law (not yet checked by a
-lawyer). Phone numbers are stored only as keyed HMAC hashes. Photos are not retained unless the
-farmer opts in. Dashboards show aggregates, never individuals.
+lawyer). Records are keyed by an HMAC of the phone number. The number itself is kept only for
+people who agreed to alerts, and sending STOP deletes it. Photos are never stored. Dashboards show
+aggregates, never individuals.
 
 ## Differences from the concept note
 

@@ -19,13 +19,13 @@ from onnxruntime.quantization import (
 )
 from onnxruntime.quantization.shape_inference import quant_pre_process
 from PIL import Image
+from shapely.geometry import shape
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
 from imbuto.ml import risk
 from imbuto.ml.bundle import write_bundle
 from imbuto.ml.crop_health import (
-    CropHealthModel,
     cosine_similarity,
     preprocess,
     shrink_for_upload,
@@ -58,7 +58,9 @@ def _encoder_session(path: Path) -> ort.InferenceSession:
     """Expose the layer before the ImageNet classifier."""
     model = onnx.load(path)
     model.graph.output.clear()
-    model.graph.output.append(helper.make_tensor_value_info(EMBEDDING, onnx.TensorProto.FLOAT, None))
+    model.graph.output.append(
+        helper.make_tensor_value_info(EMBEDDING, onnx.TensorProto.FLOAT, None)
+    )
     return ort.InferenceSession(model.SerializeToString(), providers=["CPUExecutionProvider"])
 
 
@@ -78,7 +80,8 @@ def export_onnx(source: Path, head: LogisticRegression, target: Path) -> None:
     graph.node.extend([
         helper.make_node("Gemm", [EMBEDDING, "head.weight", "head.bias"], ["head_logits"],
                          alpha=1.0, beta=1.0, transB=1, name="/head/Gemm"),
-        helper.make_node("Softmax", ["head_logits"], ["probabilities"], axis=1, name="/head/Softmax"),
+        helper.make_node("Softmax", ["head_logits"], ["probabilities"], axis=1,
+                         name="/head/Softmax"),
         helper.make_node("Identity", [EMBEDDING], ["embedding"], name="/head/Embedding"),
     ])  # fmt: skip
     graph.output.clear()
@@ -245,6 +248,7 @@ def train_crop_health() -> dict:
             "quantised_model_bytes": quantised_path.stat().st_size,
             "model_bytes": (directory / "model.onnx").stat().st_size,
             "cpu_latency_ms_laptop": round(latency_ms, 1),
+            "reference_confidence": [round(float(v), 3) for v in small_probs.max(1)],
             "per_class": classification_report(
                 y_test, predicted, target_names=LABELS, output_dict=True, zero_division=0
             ),
@@ -328,8 +332,63 @@ def train_rain() -> dict:
     return write_bundle(directory, "rain", "1.0.0", card)
 
 
+CROPS = {
+    "beans": "Beans", "maize": "Maize (white)", "cassava": "Cassava flour",
+    "bananas": "Bananas", "potatoes": "Potatoes (Irish)",
+}  # fmt: skip
+
+
+def _svg_path(geometry: dict) -> str:
+    """Project to a flat 0-1000 box; simplified so the dashboard map stays small."""
+    shape_ = shape(geometry).simplify(0.008)
+    polygons = shape_.geoms if hasattr(shape_, "geoms") else [shape_]
+    parts = []
+    for polygon in polygons:
+        points = [
+            f"{(x - 28.95) * 500:.0f},{(-2.25 - y) * 500:.0f}" for x, y in polygon.exterior.coords
+        ]
+        parts.append("M" + "L".join(points) + "Z")
+    return "".join(parts)
+
+
+def export_reference() -> dict:
+    """Small lookup files the service reads, so it never needs Parquet or DuckDB."""
+    communes = pd.read_parquet(DATA / "silver" / "communes.parquet")
+    prices = pd.read_parquet(DATA / "silver" / "prices.parquet")
+    records = [
+        {"id": c.commune_id, "name": c.commune, "province": c.province,
+         "district": c.legacy_province, "svg": _svg_path(json.loads(c.geojson))}
+        for c in communes.itertuples()
+    ]  # fmt: skip
+    prices["month"] = pd.to_datetime(prices["month"])
+    prices = prices[prices["unit"] == "KG"]
+    latest = {}
+    for key, commodity in CROPS.items():
+        part = prices[prices["commodity"].eq(commodity)]
+        if key == "beans":
+            part = prices[prices["commodity"].str.startswith("Beans")]
+        recent = part[part["month"] >= part["month"].max() - pd.DateOffset(months=2)]
+        table = {
+            district: {"price": round(float(rows["price_bif"].median())),
+                       "month": rows["month"].max().strftime("%Y-%m")}
+            for district, rows in recent.groupby("legacy_province")
+        }  # fmt: skip
+        table["Burundi"] = {"price": round(float(recent["price_bif"].median())),
+                            "month": recent["month"].max().strftime("%Y-%m")}  # fmt: skip
+        latest[key] = table
+    directory = ARTIFACTS / "reference"
+    shutil.rmtree(directory, ignore_errors=True)
+    directory.mkdir(parents=True)
+    (directory / "communes.json").write_text(json.dumps(records, separators=(",", ":")))
+    (directory / "prices.json").write_text(json.dumps(latest, separators=(",", ":")))
+    return write_bundle(directory, "reference", "1.0.0", {
+        "boundaries": "geoBoundaries gbOpen BDI ADM2 (119 pre-reform communes)",
+        "prices": "WFP VAM food prices via HDX, CC BY-IGO; median of the last three months",
+    })  # fmt: skip
+
+
 def train_all() -> None:
-    for manifest in (train_crop_health(), train_rain()):
+    for manifest in (train_crop_health(), train_rain(), export_reference()):
         print(json.dumps({k: manifest[k] for k in ("name", "version", "card")}, indent=1)[:3000])
 
 

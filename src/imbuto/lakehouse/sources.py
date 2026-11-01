@@ -11,12 +11,15 @@ from imbuto.settings import DATA
 
 BRONZE = DATA / "bronze"
 _GB = "https://github.com/wmgeolab/geoBoundaries/raw/main/releaseData/gbOpen/BDI"
-_HDX = "https://data.humdata.org/dataset/e7e5df38-adb6-4843-a053-24e119b27afc/resource"
+_HDX = (
+    "https://data.humdata.org/dataset/e7e5df38-adb6-4843-a053-24e119b27afc/resource"
+    "/efa227dd-2fd5-437e-b79d-130af02b769d/download"
+)
 _IRI = "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/.monthly/.global/.precipitation"
 
 SOURCES = {
     "chirps_monthly.nc": f"{_IRI}/X/28.95/30.9/RANGEEDGES/Y/-4.5/-2.25/RANGEEDGES/data.nc",
-    "wfp_food_prices_bdi.csv": f"{_HDX}/efa227dd-2fd5-437e-b79d-130af02b769d/download/wfp_food_prices_bdi.csv",
+    "wfp_food_prices_bdi.csv": f"{_HDX}/wfp_food_prices_bdi.csv",
     "adm1.geojson": f"{_GB}/ADM1/geoBoundaries-BDI-ADM1_simplified.geojson",
     "adm2.geojson": f"{_GB}/ADM2/geoBoundaries-BDI-ADM2_simplified.geojson",
     "oni.txt": "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
