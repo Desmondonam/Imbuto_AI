@@ -31,17 +31,20 @@ def degrade(image: Image.Image) -> Image.Image:
 
 
 def post_photo(base: str, data: bytes) -> dict:
-    response = requests.post(f"{base}/api/v1/diagnose",
-                             files={"image": ("leaf.jpg", data, "image/jpeg")}, timeout=30)  # fmt: skip
-    response.raise_for_status()
-    return response.json()
+    files = {"image": ("leaf.jpg", data, "image/jpeg")}
+    while True:
+        response = requests.post(f"{base}/api/v1/diagnose", files=files, timeout=30)
+        if response.status_code != 429:  # the rate limit is doing its job: wait, do not crash
+            response.raise_for_status()
+            return response.json()
+        time.sleep(5)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", default="http://localhost:8000")
     parser.add_argument("--count", type=int, default=28)
-    parser.add_argument("--pause", type=float, default=2.1, help="seconds, to respect the limit")
+    parser.add_argument("--pause", type=float, default=2.5, help="seconds, to respect the limit")
     args = parser.parse_args()
     table = pd.read_parquet(DATA / "bronze" / "beans" / "test.parquet")
     labels = table["labels"].tolist()

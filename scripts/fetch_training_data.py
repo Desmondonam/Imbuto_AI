@@ -6,7 +6,9 @@ from imbuto.settings import DATA
 
 BRONZE = DATA / "bronze"
 BEANS = "https://huggingface.co/datasets/AI-Lab-Makerere/beans/resolve/main/data"
-ENCODER = "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main"
+ENCODER = (
+    "https://huggingface.co/onnx-community/mobilenetv4_conv_small.e2400_r224_in1k/resolve/main"
+)
 OOD = "https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text"
 
 FILES = {
