@@ -1,5 +1,5 @@
 // Enhancement only: without this file the form still uploads the full photo.
-// Shrinks to 320px JPEG (about 12 KB, against 4 MB from a camera) and queues it when offline.
+// Shrinks to 320px JPEG (about 14 KB, against 4 MB from a camera) and queues it when offline.
 (function () {
   var form = document.getElementById('f'), input = document.getElementById('i');
   function open() {

@@ -73,6 +73,11 @@ def create_app(app_core: Imbuto | None = None) -> FastAPI:
         if not _token_ok(request, core.settings.ops_token):
             raise HTTPException(401, "Bad operator token")
 
+    def demo_only() -> None:
+        """The simulator has no caller identity, so it could register anyone's number."""
+        if core.settings.env == "production":
+            raise HTTPException(404, "Not found")
+
     def lang_of(request: Request) -> str:
         lang = request.query_params.get("lang") or request.cookies.get("lang", "rn")
         return lang if lang in LANGUAGES else "rn"
@@ -263,16 +268,19 @@ def create_app(app_core: Imbuto | None = None) -> FastAPI:
             found = con.execute("select kind, count(*) n from reports group by kind").fetchall()
         return {r["kind"]: r["n"] for r in found}
 
-    @app.get("/simulator", response_class=HTMLResponse, include_in_schema=False)
+    @app.get("/simulator", response_class=HTMLResponse, include_in_schema=False,
+             dependencies=[Depends(demo_only)])  # fmt: skip
     def simulator(request: Request):
         return page(request, "simulator.html", session=uuid4().hex)
 
-    @app.post("/simulator/ussd", response_class=JSONResponse, include_in_schema=False)
+    @app.post("/simulator/ussd", response_class=JSONResponse, include_in_schema=False,
+              dependencies=[Depends(demo_only)])  # fmt: skip
     def simulator_ussd(session: str = Form(), phone: str = Form(), digit: str = Form("")):
         screen = Menu(core, "ussd").handle(session, phone, digit or None)
         return {"text": screen.text, "end": screen.end}
 
-    @app.post("/simulator/sms", response_class=JSONResponse, include_in_schema=False)
+    @app.post("/simulator/sms", response_class=JSONResponse, include_in_schema=False,
+              dependencies=[Depends(demo_only)])  # fmt: skip
     def simulator_sms(phone: str = Form(), text: str = Form()):
         return {"reply": sms.reply(core, phone, text)}
 

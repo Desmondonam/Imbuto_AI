@@ -1,6 +1,7 @@
 import numpy as np
 
 from imbuto.monitoring.metrics import psi, summary
+from imbuto.monitoring.store import Store
 
 
 def test_psi_is_small_for_same_shape_and_large_for_a_shift():
@@ -10,6 +11,21 @@ def test_psi_is_small_for_same_shape_and_large_for_a_shift():
     assert psi(reference, rng.beta(2, 5, 2000).tolist()) > 0.25
 
 
-def test_summary_stays_quiet_until_it_has_enough_data(core):
-    report = summary(core.store, [0.9] * 50)
-    assert report["drift_psi"] is None or report["predictions"] >= 30
+def _log(store, outcome, count):
+    for _ in range(count):
+        store.log_prediction(model="m", version="1", channel="t", outcome=outcome, label="x",
+                             confidence=0.5, similarity=0.5, latency_ms=1.0)  # fmt: skip
+
+
+def test_alert_needs_a_full_window(tmp_path):
+    store = Store(tmp_path / "x.sqlite", "k")
+    _log(store, "unsure", 29)
+    assert summary(store, [0.9] * 50)["drift_alert"] is False
+
+
+def test_recent_shift_alerts_even_after_a_long_healthy_day(tmp_path):
+    store = Store(tmp_path / "x.sqlite", "k")
+    _log(store, "confident", 500)
+    assert summary(store, [0.9] * 50)["drift_alert"] is False
+    _log(store, "unsure", 12)
+    assert summary(store, [0.9] * 50)["drift_alert"] is True

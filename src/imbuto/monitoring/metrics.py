@@ -16,13 +16,17 @@ LATENCY = Histogram(
     buckets=(0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5),
 )  # fmt: skip
 
-PSI_WARN = 0.25
 MIN_SAMPLE = 30
+# Alert on recent photos, because a 24-hour average lets healthy traffic hide a shift. In notebook
+# 6 this rule gave 0.4% false alarms, against 57% for PSI above 0.25 on the same 30-photo windows,
+# so PSI is shown for context only.
+ALERT_WINDOW = 30
+ALERT_FLAGGED = 12
 _BINS = np.linspace(0.0, 1.0, 11)
 
 
 def psi(reference: list[float], current: list[float]) -> float:
-    """Population Stability Index. By convention, above 0.25 means the inputs have shifted."""
+    """Population Stability Index, a rough comparison of two distributions."""
     expected = np.histogram(reference, _BINS)[0] / len(reference)
     actual = np.histogram(current, _BINS)[0] / len(current)
     expected, actual = np.clip(expected, 1e-4, None), np.clip(actual, 1e-4, None)
@@ -34,6 +38,9 @@ def summary(store: Store, reference_confidence: list[float], hours: int = 24) ->
     with store.db() as con:
         rows = con.execute(
             "select outcome, confidence, latency_ms from predictions where ts > ?", (since,)
+        ).fetchall()
+        recent = con.execute(
+            "select outcome from predictions order by id desc limit ?", (ALERT_WINDOW,)
         ).fetchall()
         feedback = con.execute(
             "select count(*) n, sum(correct) ok from feedback where ts > ?", (since,)
@@ -54,6 +61,7 @@ def summary(store: Store, reference_confidence: list[float], hours: int = 24) ->
                 ("confident", "unsure", "not_a_leaf")}  # fmt: skip
     leaves = [r["confidence"] for r in rows if r["outcome"] != "not_a_leaf"]
     drift = psi(reference_confidence, leaves) if len(leaves) >= MIN_SAMPLE else None
+    flagged = sum(r["outcome"] != "confident" for r in recent)
     return {
         "hours": hours,
         "predictions": count,
@@ -61,7 +69,9 @@ def summary(store: Store, reference_confidence: list[float], hours: int = 24) ->
         "unsure_rate": round(outcomes["unsure"] / count, 3) if count else None,
         "p95_latency_ms": round(float(np.percentile(latencies, 95)), 1) if latencies else None,
         "drift_psi": None if drift is None or math.isnan(drift) else round(drift, 3),
-        "drift_alert": bool(drift is not None and drift > PSI_WARN),
+        "drift_alert": len(recent) >= ALERT_WINDOW and flagged >= ALERT_FLAGGED,
+        "recent_flagged": flagged,
+        "recent_count": len(recent),
         "drift_min_sample": MIN_SAMPLE,
         "feedback_count": feedback["n"],
         "feedback_agreement": round(feedback["ok"] / feedback["n"], 3) if feedback["n"] else None,

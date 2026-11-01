@@ -101,6 +101,16 @@ def test_tokens_protect_gateways_and_ops(tmp_path):
     assert client.get("/ops", headers={"x-token": "o"}).status_code == 200
 
 
+def test_simulator_cannot_register_numbers_in_production(tmp_path):
+    settings = Settings(env="production", db_path=tmp_path / "x.sqlite", phone_hash_key="k",
+                        gateway_token="g", ops_token="o")  # fmt: skip
+    client = TestClient(create_app(Imbuto(settings)))
+    assert client.get("/simulator").status_code == 404
+    form = {"session": "s", "phone": "+25769", "digit": ""}
+    assert client.post("/simulator/ussd", data=form).status_code == 404
+    assert client.post("/simulator/sms", data={"phone": "+25769", "text": "HI"}).status_code == 404
+
+
 def test_rate_limit_applies(tmp_path):
     client = TestClient(create_app(Imbuto(Settings(db_path=tmp_path / "x.sqlite"))))
     codes = [client.post("/ask", data={"question": "beans"}).status_code for _ in range(31)]
