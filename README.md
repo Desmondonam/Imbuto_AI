@@ -1,4 +1,4 @@
-# Imbuto AI
+﻿# Imbuto AI
 
 Kirundi-first farm information for Burundi's smallholder farmers, on any phone.
 *Imbuto* means seed. The full vision is in the
