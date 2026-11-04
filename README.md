@@ -9,7 +9,7 @@ at Deep Learning IndabaX Burundi, 6 November 2026.
 
 > **Status: demo.** Kirundi text and agronomy content are unreviewed drafts, and no operator is
 > connected. Do not use it with real farmers until the checks in
-> [docs/REVIEW_NEEDED.md](docs/REVIEW_NEEDED.mdare done.
+> [docs/REVIEW_NEEDED.md](docs/REVIEW_NEEDED.md) are done.
 
 ## What it does
 
